@@ -25,6 +25,35 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use("/testAPI", testAPIRouter);
 
+const MongoClient = require('mongodb').MongoClient;
+const uri = "mongodb+srv://Bhumi:Bhumi@cluster0.llo1i.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
+let con;
+async function connect(service) {
+  if (con) return con; // return connection if already conncted
+  const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+  con = client.connect()
+  console.log('con:------- ', con);
+  return con;
+}
+
+async function FetchAllserviceSearch(service) {
+  console.log("INSIDE FUNC----------")
+  const client = await connect();
+  console.log('client:------- ', client);
+  const database = client.db("sample_analytics")
+  let dataCursor = await database.collection("accounts").find({})
+  while (await dataCursor.hasNext()) {                       //make sure to put await on cursor .hasnext()
+      let results = await dataCursor.next()
+      console.log('results:------------ ', results);
+  }
+  return { message: "User Added to Database" }
+}
+
+FetchAllserviceSearch().then((res) => {
+  console.log('res:----------- ', res);
+
+})
+
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
